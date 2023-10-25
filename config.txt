@@ -1,0 +1,104 @@
+Postges config 
+
+
+user admin 
+password ayman
+db_name coins 
+tables = [fact_table, date_dimension, coin_dimension]
+
+
+
+kafka config commands : 
+
+# Start ZooKeeper
+./bin/zookeeper-server-start.sh config/zookeeper.properties
+
+# Start Kafka Server
+./bin/kafka-server-start.sh config/server.properties
+
+# Create a Topic
+./bin/kafka-topics.sh --create --topic coin_topic --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+# List Topics
+./bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+
+# Produce Messages
+./bin/kafka-console-producer.sh --topic my_topic --bootstrap-server localhost:9092
+
+# Consume Messages
+./bin/kafka-console-consumer.sh --topic coin_topic --bootstrap-server localhost:9092 --from-beginning
+
+# Describe a Topic
+./bin/kafka-topics.sh --describe --topic coin_topic --bootstrap-server localhost:9092
+
+# Delete a Topic
+./bin/kafka-topics.sh --delete --topic coin_topic --bootstrap-server localhost:9092
+
+
+spark config command : 
+
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 --jars /home/ayman/Downloads/postgresql-42.6.0.jar  coin_etl_spark.py
+
+
+
+
+postgres database config : 
+
+
+create table date_dimension (
+
+id serial PRIMARY KEY,
+year int ,
+month int , 
+day int,
+hour int,
+minute int ,
+second int );
+
+
+
+CREATE TABLE coin_dimension (
+  coin_id CHARACTER(20) PRIMARY KEY,
+  name CHARACTER(20),
+  symbol CHARACTER(5));
+  
+  
+  
+create table fact_table (
+id serial primary key,
+"coin_id" character(20),
+FOREIGN KEY ("id") REFERENCES date_dimension(id),
+foreign key ("coin_id") references coin_dimension(coin_id),
+"rank" int,
+"priceUsd" float,
+"supply" float,
+"marketCapUsd" float,
+"changePercent24Hr" float,
+"volumeUsd24Hr" float ,
+"vwap24Hr" float
+);
+
+
+
+spark version : 
+
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 3.5.0
+      /_/
+                        
+Using Scala version 2.12.18, OpenJDK 64-Bit Server VM, 17.0.8.1
+
+
+kafka version : 3.5.1
+
+
+postgres verison : psql --version
+psql (PostgreSQL) 16.0 (Ubuntu 16.0-1.pgdg22.04+1)
+
+
+
+
+
